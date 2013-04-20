@@ -7,7 +7,7 @@ import time
 
 class BlooClient:
     def __init__(self):
-        self.ip = "bloocoins.zapto.org"
+        self.ip = "bloocoin.zapto.org"
         self.port = 3122
         self.cmds = {
 

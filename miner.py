@@ -7,7 +7,7 @@ import sys
 
 class BlooMiner:
     def __init__(self):
-        #self.ip = "btcminers.zapto.org"
+        self.ip = "bloocoin.zapto.org"
         self.ip = ""
         self.port = 3122
         self.addr = sys.argv[2]
@@ -75,6 +75,9 @@ class BlooMiner:
             print "Not a winning solution"
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print "Usage: python miner.py <threads> <bloocoin address>"
+        exit()
     b = BlooMiner()
     for x in range(int(sys.argv[1])):
         threading.Thread(target=b.main).start()
