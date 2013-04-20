@@ -2,7 +2,7 @@ import socket
 import hashlib
 import json
 import time
-import threading
+import multiprocess
 import sys
 
 class BlooMiner:
@@ -79,5 +79,5 @@ if __name__ == "__main__":
         exit()
     b = BlooMiner()
     for x in range(int(sys.argv[1])):
-        threading.Thread(target=b.main).start()
+        multiprocessing.Process(target=b.main).start()
         time.sleep(1)
