@@ -8,7 +8,6 @@ import sys
 class BlooMiner:
     def __init__(self):
         self.ip = "bloocoin.zapto.org"
-        self.ip = ""
         self.port = 3122
         self.addr = sys.argv[2]
     def main(self):
