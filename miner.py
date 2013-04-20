@@ -25,7 +25,7 @@ class BlooMiner:
                 test = hashlib.sha512(start_string+str(num)).hexdigest()
                 #hashes += 1
                 #if time.time() - 1 >= khps:
-                    #print str(hashes)+" KHps"
+                    #print str(hashes)+" Hashes per second"
                    # hashes = 0
                   #  khps = time.time()
                 if test.startswith("0"*difficulty):
