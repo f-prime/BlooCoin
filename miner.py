@@ -2,7 +2,7 @@ import socket
 import hashlib
 import json
 import time
-import multiprocess
+import multiprocessing
 import sys
 
 class BlooMiner:
