@@ -19,8 +19,7 @@ class BlooServer:
             "my_coins":self.my_coins, # Clients
             "check":self.check, #Checks works (Miners)
         }
-        self.difficulties = [10, 10]
-        #max 64
+
     def main(self):
         sock = socket.socket()
         while True:
@@ -44,6 +43,11 @@ class BlooServer:
             if str(cmd['cmd']) not in self.cmds:
                 continue
             threading.Thread(target=self.cmds[str(cmd['cmd'])], args=(cmd, obj)).start()
+    
+    def difficulty(self):
+        
+        return self.db.coins.count() / 1000 + 10
+        
 
     def get_coin(self, cmd, obj): #Miners only
         current_coin = self.current_coin
@@ -111,8 +115,7 @@ class BlooServer:
         id = ""
         for x in range(5):
             id = id + random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWZYZ1234567890")
-
-        difficulty = random.randint(self.difficulties[0], self.difficulties[1])
+        difficulty = self.difficulty()
         self.current_coin = {"id":id, "difficulty":difficulty}
     
     def start_string(self):
