@@ -51,7 +51,7 @@ class BlooServer:
     def register(self, cmd, obj):    
         addr = str(cmd['addr'])
         pwd = str(cmd['pwd'])
-        if not self.db.addresses.find_one({"addr":addr}):
+        if not self.db.addresses.find_one({"addr":addr}) and not self.addresses.find({"pwd":pwd}):
             self.db.addresses.insert({"addr":addr, "pwd":pwd})
         else:
             obj.send("False")
@@ -59,7 +59,6 @@ class BlooServer:
 
     def send_coin(self, cmd, obj): #Client only
         #{"cmd":'send_coin', 'amount':_, 'to':addr, 'addr':addr}
-        print cmd
         amount = int(cmd[u'amount'])
         to = str(cmd[u'to'])
         addr = str(cmd[u'addr'])
