@@ -3,7 +3,8 @@ BlooCoin is a crypto-currency like Bitcoin that uses a central server to handle 
 Server
 ======
 
-Although anyone techincally can host a BlooCoin server, there is only one official server which is hard coded into the BlooCoin client. Do not connect to any other server unless you are looking to test new feature.
+Although anyone techincally can host a BlooCoin server, there is only one official server which is hard coded into the BlooCoin client. Do not connect to any other server unless you are looking to test a new feature.
+
 
 Boocoin
 =======
