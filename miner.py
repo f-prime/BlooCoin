@@ -15,7 +15,10 @@ class BlooMiner:
         while True:
             self.continue_mining = True
             problem = self.get_coin()
-            threading.Thread(target=self.check_coin).start()
+            try:
+                threading.Thread(target=self.check_coin).start()
+            except:
+                print "Miner requires a restart."
             print problem
             difficulty = problem['difficulty']
             start_string = str(problem['start_string'])
