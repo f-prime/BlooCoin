@@ -73,8 +73,8 @@ class BlooClient:
                 time.sleep(10)
         s.send(json.dumps({"cmd":"register", "addr":addr, "pwd":pwd}))
         check = s.recv(1024)
-        if check == "Fasle":
-            print "There was an error witht the registeration of your client, please delete your bloostamp file and relaunch"
+        if check == "False":
+            print "There was an error with the registeration of your client, please delete your bloostamp file and relaunch."
             exit()
         s.close()
 
