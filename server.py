@@ -5,6 +5,7 @@ import threading
 import pymongo
 import random
 import sys
+import time
 
 class BlooServer:
     def __init__(self):
@@ -28,6 +29,7 @@ class BlooServer:
                 break
             except:
                 print "Address already in use... trying again."
+                time.sleep(2)
                 continue
         sock.listen(5)
         self.generate_coin_work()
