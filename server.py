@@ -27,6 +27,7 @@ class BlooServer:
                 sock.bind(('0.0.0.0', self.port))
                 break
             except:
+                print "Address already in use... trying again."
                 continue
         sock.listen(5)
         self.generate_coin_work()
