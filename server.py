@@ -94,6 +94,7 @@ class BlooServer:
         if userData["pwd"] != pwd:
             obj.send("Your password is invalid.")
             obj.close()
+            return
 
         # Check if request is valid.
         if not self.db.addresses.find_one({"addr":to}):
@@ -101,7 +102,7 @@ class BlooServer:
             obj.close()
             return
         if amount <= 0:
-            obj.send("You must send more than 0 bloocoins.")
+            obj.send("You must send more than 0 bloocoins.")  
         check = 0
         for x in self.db.coins.find({"addr":addr}):
             check += 1
@@ -138,7 +139,7 @@ class BlooServer:
         addr = str(cmd['addr'])
 
         # Check if account exists.
-        if not self.db.addresses.find_one({"addr":addr}):
+        if not self.db.addresses.find_one({"addr":addr}): 
             obj.send("False")
             obj.close()
             return
