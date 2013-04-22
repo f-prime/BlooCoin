@@ -103,7 +103,7 @@ class BlooServer:
         winstr = str(cmd['winning_string'])
         winhash = str(cmd['winning_hash'])
         addr = str(cmd['addr'])
-        if hashlib.sha512(winstr).hexdigest() == winhash and not self.db.coins.find_one({"hash":winhash}) and self.db.addresses.find({"addr":addr}):
+        if hashlib.sha512(winstr).hexdigest() == winhash and not self.db.coins.find_one({"hash":winhash}) and self.db.addresses.find({"addr":addr}) and winhash.startswith("0"*self.difficulty()):
             obj.send("True")
             self.generate_coin_work()
             self.db.coins.insert({"hash":winhash, "addr":addr})
