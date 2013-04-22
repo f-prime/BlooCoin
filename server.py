@@ -35,92 +35,134 @@ class BlooServer:
         while True:
             #{'cmd':'send_coin', 'addr':'users_addr', 'to':'to_addr', 'amount':5}
             obj, conn = sock.accept()
+            obj.settimeout(1)
             try:
                 cmd = json.loads(obj.recv(1024))
+                print conn[0], str(cmd)
+                if str(cmd['cmd']) not in self.cmds:
+                    obj.send("Invalid command.")
+                    obj.close()
+                    continue
             except:
                 continue
-            print conn[0], str(cmd)
-            if str(cmd['cmd']) not in self.cmds:
-                continue
             threading.Thread(target=self.cmds[str(cmd['cmd'])], args=(cmd, obj)).start()
+        return
+                
     
     def difficulty(self):
-        
         return self.db.coins.count() / 8200 + 7
-        
 
     def get_coin(self, cmd, obj): #Miners only
         current_coin = self.current_coin
         current_coin['start_string'] = self.start_string()
         obj.send(json.dumps(current_coin))
         obj.close()
+        return
     
-    def register(self, cmd, obj):    
+    def register(self, cmd, obj):
         addr = str(cmd['addr'])
         pwd = str(cmd['pwd'])
-        if not self.db.addresses.find_one({"addr":addr}) and not self.addresses.find({"pwd":pwd}):
+        if not self.db.addresses.find_one({"addr":addr}):
             self.db.addresses.insert({"addr":addr, "pwd":pwd})
         else:
-            obj.send("False")
+            obj.send("Your account is already registered.")
         obj.close()
+        return
 
     def send_coin(self, cmd, obj): #Client only
         #{"cmd":'send_coin', 'amount':_, 'to':addr, 'addr':addr}
-        amount = int(cmd[u'amount'])
-        to = str(cmd[u'to'])
-        addr = str(cmd[u'addr'])
+        try:
+            amount = int(cmd[u'amount'])
+            to = str(cmd[u'to'])
+            addr = str(cmd[u'addr'])
+            pwd = str(cmd[u'pwd'])
+        except ValueError:
+            obj.send("Invalid input. Use 'help' for usage instructions.")
+            obj.close()
+            return
+        except KeyError:
+            obj.send("Your client is sending invalid data and might be outdated.")
+            obj.close()
+            return
+
+        # Authenticate user.
+        userData = self.db.addresses.find_one({"addr":addr})
+        if not userData:
+            obj.send("Your address is invalid.")
+            obj.close()
+            return
+        if userData["pwd"] != pwd:
+            obj.send("Your password is invalid.")
+            obj.close()
+
+        # Check if request is valid.
+        if not self.db.addresses.find_one({"addr":to}):
+            obj.send("Destination address is invalid.")
+            obj.close()
+            return
+        if amount <= 0:
+            obj.send("You must send more than 0 bloocoins.")
         check = 0
-        for x in self.db.coins.find({"amount":addr}):
+        for x in self.db.coins.find({"addr":addr}):
             check += 1
-        if check <= amount:
-            if not self.db.addresses.find_one({"addr":to}):
-                obj.send("Address does not exist")
-            elif amount == 0:
-                obj.send("You can not send 0 bloocoins")
-            else:
-                for x in range(amount):
-                    before = self.db.coins.find_one({"addr":addr})
-                    before['addr'] = to
-                    self.db.coins.update({"addr":addr}, before)
-                obj.send("Transaction successful.")
-            
-        else:
+        if check < amount:
             obj.send("You don't have enough coins.")
+            obj.close()
+            return
+
+        # Complete transaction.
+        for x in xrange(0, amount):
+            before = self.db.coins.find_one({"addr":addr})
+            before['addr'] = to
+            self.db.coins.update({"addr":addr}, before)
+        obj.send("Transaction successful.")
         obj.close()
+        return
+            
     def my_coins(self, cmd, obj):
         addr = str(cmd['addr'])
         try:
-            d = 0
+            coins = 0
             for x in self.db.coins.find({"addr":addr}):
-                d += 1
-            obj.send(str(d))
+                coins += 1
+            obj.send(str(coins))
         except Exception, error:
             print error
         obj.close()
     
     def check(self, cmd, obj): #Miners only
         #{"cmd":"check", "winning_string":string, "winning_hash":hash, 'addr':addr}
+
         winstr = str(cmd['winning_string'])
         winhash = str(cmd['winning_hash'])
         addr = str(cmd['addr'])
-        if hashlib.sha512(winstr).hexdigest() == winhash and not self.db.coins.find_one({"hash":winhash}) and self.db.addresses.find({"addr":addr}) and winhash.startswith("0"*self.difficulty()):
+
+        # Check if account exists.
+        if not self.db.addresses.find_one({"addr":addr}):
+            obj.send("False")
+            obj.close()
+            return
+
+        if hashlib.sha512(winstr).hexdigest() == winhash and not self.db.coins.find_one({"hash":winhash}) and winhash.startswith(self.difficulty() * "0"):
             obj.send("True")
             self.generate_coin_work()
             self.db.coins.insert({"hash":winhash, "addr":addr})
         else:
             obj.send("False")
         obj.close()
+        return
 
     def generate_coin_work(self):
         id = ""
-        for x in range(5):
+        for x in xrange(5):
             id = id + random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWZYZ1234567890")
         difficulty = self.difficulty()
         self.current_coin = {"id":id, "difficulty":difficulty}
+        return
     
     def start_string(self):
         start_string = ""
-        for x in range(5):
+        for x in xrange(5):
             start_string = start_string + random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWZYZ1234567890")
         return start_string
 
