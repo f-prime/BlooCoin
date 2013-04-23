@@ -165,7 +165,6 @@ if __name__ == "__main__":
                 addr = addr + random.choice("abcdefghijklmnopqrstuvwxzyABCDEFGHIJKLMNOPQRSTUVWZYZ1234567890")
             for x in xrange(50):
                 addr = hashlib.sha1(addr).hexdigest()
-            addr = "1337c0de" + addr[8:]
             key = ""
             for x in xrange(5000):
                 key = key + random.choice("abcdefghijklmnopqrstuvwxzyABCDEFGHIJKLMNOPQRSTUVWZYZ1234567890")
