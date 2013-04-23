@@ -11,13 +11,16 @@ class BlooServer:
     def __init__(self):
         self.port = 3122
         self.db = pymongo.MongoClient('localhost', 27017).bloocoin
+        self.clientver = "1"
+        self.minerver = "1"
         self.cmds = {
             
             "register":self.register, # Clients
             "get_coin":self.get_coin, # Miners
             "send_coin":self.send_coin, # Clients
             "my_coins":self.my_coins, # Clients
-            "check":self.check, #Checks works (Miners)
+            "check":self.check, # Checks works (Miners)
+            "update":self.update, # Clients and Miners
         }
 
     def main(self):
@@ -60,10 +63,19 @@ class BlooServer:
         return
     
     def register(self, cmd, obj):
-        addr = str(cmd['addr'])
-        pwd = str(cmd['pwd'])
+        try:
+            addr = str(cmd['addr'])
+            pwd = str(cmd['pwd'])
+        except KeyError:
+            obj.close()
+            return
+        if len(addr) != 40:
+            obj.send("Register failed.")
+            obj.close()
+        
         if not self.db.addresses.find_one({"addr":addr}):
             self.db.addresses.insert({"addr":addr, "pwd":pwd})
+            obj.send("True")
         else:
             obj.send("Your account is already registered.")
         obj.close()
@@ -121,7 +133,13 @@ class BlooServer:
         return
             
     def my_coins(self, cmd, obj):
-        addr = str(cmd['addr'])
+        try:
+            addr = str(cmd['addr'])
+            pwd = str(cmd['pwd'])
+        except KeyError:    # "Auto-Update" for old clients. - Remove on update.
+            obj.send("? coins.\n\nIn order to see how many coins you have, you must download the new BlooCoin Client from: https://github.com/Max00355/BlooCoin/blob/master/bloocoin.py\n\n")
+            obj.close()
+            return
         try:
             coins = 0
             for x in self.db.coins.find({"addr":addr}):
@@ -133,13 +151,17 @@ class BlooServer:
     
     def check(self, cmd, obj): #Miners only
         #{"cmd":"check", "winning_string":string, "winning_hash":hash, 'addr':addr}
-
-        winstr = str(cmd['winning_string'])
-        winhash = str(cmd['winning_hash'])
-        addr = str(cmd['addr'])
+        try:
+            winstr = str(cmd['winning_string'])
+            winhash = str(cmd['winning_hash'])
+            addr = str(cmd['addr'])
+        except KeyError:
+            obj.send("False")
+            obj.close()
+            return
 
         # Check if account exists.
-        if not self.db.addresses.find_one({"addr":addr}): 
+        if not self.db.addresses.find_one({"addr":addr}):
             obj.send("False")
             obj.close()
             return
@@ -152,6 +174,28 @@ class BlooServer:
             obj.send("False")
         obj.close()
         return
+
+    def update(self, cmd, obj):
+        try:
+            ver = str(cmd['ver'])
+            type = str(cmd['type'])
+        except KeyError:
+            obj.close()
+            return
+        if type == "client":
+            if ver != self.clientver:
+                obj.send("1")
+                obj.close()
+                return
+        if type == "miner":
+            if ver != self.minerver:
+                obj.send("1")
+                obj.close()
+                return
+        obj.send("0")
+        return
+            
+            
 
     def generate_coin_work(self):
         id = ""
