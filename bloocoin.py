@@ -9,6 +9,8 @@ class BlooClient:
     def __init__(self):
         self.ip = "bloocoin.zapto.org"
         self.port = 3122
+        self.type = "client"
+        self.ver = "1"
         self.cmds = {
 
             "addr":self.addr,
@@ -16,6 +18,9 @@ class BlooClient:
             "send":self.sendcoin,
             "help":self.help,
             }
+        self.update()
+        return
+    
     def main(self):
         while True:
             cmd = raw_input("BlooCoin> ")
@@ -33,7 +38,7 @@ class BlooClient:
         return
             
     def addr_get(self):
-        with open("bloostamp", 'rb') as file: # Check for file error.
+        with open("bloostamp", 'rb') as file:
             return file.read().split(":")[0]
 
     def pwd_get(self):
@@ -51,7 +56,7 @@ class BlooClient:
                 print "Server seems to be down... trying again in 10 seconds."
                 time.sleep(10)
                 continue
-        s.send(json.dumps({ "cmd":"my_coins", "addr":self.addr_get() }))
+        s.send(json.dumps({ "cmd":"my_coins", "addr":self.addr_get(), "pwd":self.pwd_get()}))
         print "You currently have", s.recv(1024), "coins."
         s.close()
         return
@@ -120,24 +125,56 @@ coins - Shows amount of coins owned.
 send <amount> <to> - Send coins to another bloocoin address.
 To generate a new BlooCoin address simply delete your bloostamp file and relaunch bloocoin."""
 
+    def update(self):
+        s = socket.socket()
+        s.settimeout(3)
+        try:
+            s.connect((self.ip, self.port))
+        except:
+            s.close()
+            print "Couldn't connect to server.\n"
+            return
+        s.send(json.dumps({ "ver": self.ver, "cmd": "update", "type": self.type }))
+        s.settimeout(3)
+        try:
+            response = s.recv(1024)
+        except socket.timeout:
+            print "Server seems to be offline.\n"
+            s.close()
+            return
+        s.close()
+        if response[0] == "0":
+            print "Your %s is running the latest version.\n" % self.type
+            return
+        
+        if response[0] == "1":
+            print "A new version is available. It can be downloaded at:\nhttps://raw.github.com/Max00355/BlooCoin/master/bloocoin.py\n"
+            return
+
+        if response[0] == "2":
+            print response[1:] + "\n"
+            return
+        return
+
 if __name__ == "__main__":
     if not os.path.exists("bloostamp"):
         print "A bloostamp does not exist in this directory, generating one..."
         with open("bloostamp", 'w') as file:
             addr = ""
-            for x in range(100):
+            for x in xrange(100):
                 addr = addr + random.choice("abcdefghijklmnopqrstuvwxzyABCDEFGHIJKLMNOPQRSTUVWZYZ1234567890")
-            for x in range(50):
+            for x in xrange(50):
                 addr = hashlib.sha1(addr).hexdigest()
+            addr = "1337c0de" + addr[8:]
             key = ""
-            for x in range(5000):
+            for x in xrange(5000):
                 key = key + random.choice("abcdefghijklmnopqrstuvwxzyABCDEFGHIJKLMNOPQRSTUVWZYZ1234567890")
-            for x in range(1000):
+            for x in xrange(1000):
                 key = hashlib.sha1(key).hexdigest()
             file.write(addr + ":" + key + ":1")
             print "Generated bloostamp! Your BlooCoin address is", addr
             BlooClient().register(addr, key)
-    with open("bloostamp", "r+") as file: # Register old accounts properly.
+    with open("bloostamp", "r+") as file:   # Register old accounts properly. - Remove on next update.
         data = file.read().split(":")
         file.seek(0)
         if len(data) == 2:
@@ -145,5 +182,5 @@ if __name__ == "__main__":
             key = data[1]
             BlooClient().register(addr, key)
             print "Your account has been registered with the new system."
-            file.write(addr + ":" + key + ":" + ":1")
+            file.write(addr + ":" + key + ":1")
     BlooClient().main()
