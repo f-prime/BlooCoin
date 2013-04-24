@@ -123,7 +123,7 @@ class BlooMiner:
             return
         s.close()
         if response[0] == "0":
-            print "Your %s is running the latest version.\n" % self.type
+            print "Your {0} is running the latest version.\n".format(self.type)
             return
         
         if response[0] == "1":
