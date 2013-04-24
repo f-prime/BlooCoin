@@ -12,7 +12,7 @@ class BlooServer:
         self.port = 3122
         self.db = pymongo.MongoClient('localhost', 27017).bloocoin
         self.clientver = "1"
-        self.minerver = "1"
+        self.minerver = "1.01"
         self.cmds = {
             
             "register":self.register, # Clients
