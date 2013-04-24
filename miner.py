@@ -12,7 +12,7 @@ class BlooMiner:
         self.port = 3122
         self.addr = sys.argv[2]
         self.type = "miner"
-        self.ver = "1"
+        self.ver = "1.01"
         self.update()
     def main(self):
         print "Mining thread started."
