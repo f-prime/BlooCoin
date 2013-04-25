@@ -40,7 +40,7 @@ class BlooServer:
             obj, conn = sock.accept()
             obj.settimeout(1)
             try:
-                cmd = json.loads(obj.recv(1024).replace("\n", ''))
+                cmd = json.loads(obj.recv(1024))
                 print conn[0], str(cmd)
                 if str(cmd['cmd']) not in self.cmds:
                     obj.send("Invalid command.")
@@ -87,7 +87,7 @@ class BlooServer:
             amount = int(cmd[u'amount'])
             to = str(cmd[u'to'])
             addr = str(cmd[u'addr'])
-            pwd = str(cmd[u'pwd'])
+            pwd = str(cmd[u'pwd']).relace("\n", '')
         except ValueError:
             obj.send("Invalid input. Use 'help' for usage instructions.")
             obj.close()
