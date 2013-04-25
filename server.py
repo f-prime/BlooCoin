@@ -54,7 +54,7 @@ class BlooServer:
                 
     
     def difficulty(self):
-        return self.db.coins.count() / 205000 + 1
+        return self.db.coins.count() / 205000 + 7
 
     def get_coin(self, cmd, obj): #Miners only
         current_coin = self.current_coin
