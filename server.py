@@ -11,7 +11,7 @@ class BlooServer:
     def __init__(self):
         self.port = 3122
         self.db = pymongo.MongoClient('localhost', 27017).bloocoin
-        self.clientver = "1"
+        self.clientver = "1.05"
         self.minerver = "1.01"
         self.cmds = {
             
@@ -21,6 +21,7 @@ class BlooServer:
             "my_coins":self.my_coins, # Clients
             "check":self.check, # Checks works (Miners)
             "update":self.update, # Clients and Miners
+            "transactions":self.transactions,
         }
 
     def main(self):
@@ -53,7 +54,7 @@ class BlooServer:
                 
     
     def difficulty(self):
-        return self.db.coins.count() / 205000 + 7
+        return self.db.coins.count() / 205000 + 1
 
     def get_coin(self, cmd, obj): #Miners only
         current_coin = self.current_coin
@@ -88,6 +89,7 @@ class BlooServer:
             to = str(cmd[u'to'])
             addr = str(cmd[u'addr'])
             pwd = str(cmd[u'pwd']).replace("\n", '')
+            
         except ValueError:
             obj.send("Invalid input. Use 'help' for usage instructions.")
             obj.close()
@@ -128,10 +130,36 @@ class BlooServer:
             before = self.db.coins.find_one({"addr":addr})
             before['addr'] = to
             self.db.coins.update({"addr":addr}, before)
+        self.db.transactions.insert({"to":to, "from":addr, "amount":amount}) 
         obj.send("Transaction successful.")
         obj.close()
         return
-            
+    def transactions(self, cmd, obj):
+        try:
+            addr = str(cmd['addr'])
+            pwd = str(cmd['pwd'])
+        except KeyError:
+            obj.send("An error occured")
+            obj.close()
+        to = []
+        from_  = []
+        all = []
+        if self.db.addresses.find_one({"addr":addr, "pwd":pwd}):
+            for x in self.db.transactions.find({"to":addr}):
+                to.append("From: "+x['from']+" "+str(x['amount']))
+            for x in self.db.transactions.find({"from":addr}):
+                from_.append("To: "+x['to']+" "+str(x['amount']))
+            for x in to:
+                all.append(x)
+            for x in from_:
+                all.append(x)
+            for x in all:
+                try:
+                    obj.send(x)
+                except:
+                    break
+        obj.close()
+        return
     def my_coins(self, cmd, obj):
         try:
             addr = str(cmd['addr'])

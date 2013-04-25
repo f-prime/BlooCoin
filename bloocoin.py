@@ -10,9 +10,9 @@ class BlooClient:
         self.ip = "bloocoin.zapto.org"
         self.port = 3122
         self.type = "client"
-        self.ver = "1"
+        self.ver = "1.05"
         self.cmds = {
-
+            "transactions":self.transactions,
             "addr":self.addr,
             "coins":self.coins,
             "send":self.sendcoin,
@@ -31,7 +31,25 @@ class BlooClient:
             except:
                 continue
         return
-    
+    def transactions(self):
+        s = socket.socket()
+        s.settimeout(3)
+        while True:
+            try:
+                s.connect((self.ip, self.port))
+                break
+            except:
+                print "Server seems down... trying again in 10 seconds."
+                time.seep(10)
+        s.send(json.dumps({"cmd":"transactions", "addr":self.addr_get(), "pwd":self.pwd_get()}))
+        while True:
+            data = s.recv(1024)
+            if data:
+                print data
+            else:
+                break
+        return
+
     def addr(self):
         with open("bloostamp", 'rb') as file:
             print "Your BlooCoin address is:", file.read().split(":")[0]
@@ -123,6 +141,8 @@ class BlooClient:
 addr - Show your BlooCoin address.
 coins - Shows amount of coins owned.
 send <amount> <to> - Send coins to another bloocoin address.
+transactions - Shows all transactions you have made.
+
 To generate a new BlooCoin address simply delete your bloostamp file and relaunch bloocoin."""
 
     def update(self):
