@@ -87,7 +87,7 @@ class BlooServer:
             amount = int(cmd[u'amount'])
             to = str(cmd[u'to'])
             addr = str(cmd[u'addr'])
-            pwd = str(cmd[u'pwd']).relace("\n", '')
+            pwd = str(cmd[u'pwd']).replace("\n", '')
         except ValueError:
             obj.send("Invalid input. Use 'help' for usage instructions.")
             obj.close()
