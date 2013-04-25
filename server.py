@@ -40,7 +40,7 @@ class BlooServer:
             obj, conn = sock.accept()
             obj.settimeout(1)
             try:
-                cmd = json.loads(obj.recv(1024))
+                cmd = json.loads(obj.recv(1024).replace("\n", ''))
                 print conn[0], str(cmd)
                 if str(cmd['cmd']) not in self.cmds:
                     obj.send("Invalid command.")
