@@ -165,7 +165,7 @@ class BlooServer:
             addr = str(cmd['addr'])
             pwd = str(cmd['pwd'])
         except KeyError:    # "Auto-Update" for old clients. - Remove on update.
-            obj.send("? coins.\n\nIn order to see how many coins you have, you must download the new BlooCoin Client from: https://github.com/Max00355/BlooCoin/blob/master/bloocoin.py\n\n")
+            obj.send("? coins.\n\nIn order to see how many coins you have, you must download the new BlooCoin Client from: https://raw.github.com/Max00355/BlooCoin/master/bloocoin.py\n\n")
             obj.close()
             return
         try:
