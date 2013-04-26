@@ -11,7 +11,7 @@ class BlooServer:
     def __init__(self):
         self.port = 3122
         self.db = pymongo.MongoClient('localhost', 27017).bloocoin
-        self.clientver = "1.05"
+        self.clientver = "1.06"
         self.minerver = "1.01"
         self.cmds = {
             
