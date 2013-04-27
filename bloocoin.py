@@ -5,6 +5,7 @@ import os
 import random
 import time
 
+
 class BlooClient(object):
     def __init__(self):
         self.ip = "bloocoin.zapto.org"
@@ -19,7 +20,7 @@ class BlooClient(object):
             "help": self.help,
         }
         self.update()
-    
+
     def main(self):
         while True:
             cmd = raw_input("$ ")
@@ -60,7 +61,7 @@ class BlooClient(object):
         data = self._send_json({
             "cmd": "transactions",
             "addr": self.addr_get(),
-            "pwd":self.pwd_get()
+            "pwd": self.pwd_get()
         })
         if data:
             print data
@@ -71,7 +72,7 @@ class BlooClient(object):
         with open("bloostamp", 'rb') as f:
             print "Your BlooCoin address is:", f.read().split(":")[0]
         return
-            
+
     def addr_get(self):
         with open("bloostamp", 'rb') as f:
             return f.read().split(":")[0]
@@ -79,7 +80,7 @@ class BlooClient(object):
     def pwd_get(self):
         with open("bloostamp", "rb") as f:
             return f.read().split(":")[1]
-        
+
     def coins(self):
         data = self._send_json({
             "cmd": "my_coins",
@@ -90,7 +91,7 @@ class BlooClient(object):
             print "You currently have", data, "coins."
         else:
             print "Something went wrong getting coin listings! :("
-     
+
     def sendcoin(self):
         cmd = self.cmd.split()
         amount = cmd[1]
@@ -108,7 +109,7 @@ class BlooClient(object):
             print data
         else:
             print "Unable to send your coin! Uh oh! :("
-    
+
     def register(self, addr, pwd):
         data = self._send_json({
             "cmd": "register",
@@ -121,13 +122,14 @@ class BlooClient(object):
             print "Registration failed! '{0}' :(".format(data)
 
     def help(self):
-        print """
-addr - Show your BlooCoin address.
-coins - Shows amount of coins owned.
-send <amount> <to> - Send coins to another bloocoin address.
-transactions - Shows all transactions you have made.
-
-To generate a new BlooCoin address simply delete your bloostamp file and relaunch bloocoin."""
+        print "\n".join([
+            "addr\t- Show your BlooCoin address.",
+            "coins\t- Shows the ammount of BlooCoins in your account.",
+            "send <amt> <to>\t - Sends <amt> coins from your account to <to>.",
+            "transactions\t - Lists transactions you've made.",
+            "",
+            "To generate a new address, remove your 'bloostamp' file."
+        ])
 
     def update(self):
         data = self._send_json({
@@ -138,7 +140,8 @@ To generate a new BlooCoin address simply delete your bloostamp file and relaunc
         if data[0] == "0":
             print "Your {0} is running the latest version.\n".format(self.type)
         elif data[0] == "1":
-            print "A new version is available. It can be downloaded at:\nhttps://raw.github.com/Max00355/BlooCoin/master/bloocoin.py\n"
+            print ("A new version is available. It can be downloaded at:\n"
+                   "https://raw.github.com/Max00355/BlooCoin/master/bloocoin.py")
         elif data[0] == "2":
             print data[1:] + "\n"
         else:
@@ -155,7 +158,7 @@ if __name__ == "__main__":
             f.write(addr + ":" + key + ":1")
             print "Generated bloostamp! Your BlooCoin address is", addr
             b.register(addr, key)
-    with open("bloostamp", "r+") as f:   # Register old accounts properly. - Remove on next update.
+    with open("bloostamp", "r+") as f:  # Register old accounts properly.
         data = f.read().split(":")
         f.seek(0)
         if len(data) == 2:
