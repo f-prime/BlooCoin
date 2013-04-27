@@ -5,7 +5,7 @@ import os
 import random
 import time
 
-class BlooClient:
+class BlooClient(object):
     def __init__(self):
         self.ip = "bloocoin.zapto.org"
         self.port = 3122
@@ -19,18 +19,16 @@ class BlooClient:
             "help": self.help,
         }
         self.update()
-        return
     
     def main(self):
         while True:
-            cmd = raw_input("BlooCoin> ")
+            cmd = raw_input("$ ")
             self.cmd = cmd
             try:
                 self.cmds[cmd.split()[0]]()
                 print ""
             except:
                 continue
-        return
 
     def _send_json(self, data, buff=1024):
         """ This function does most of the leg work for the script,
@@ -147,6 +145,7 @@ To generate a new BlooCoin address simply delete your bloostamp file and relaunc
             print "Unknown data returned from update: {0}".format(data)
 
 if __name__ == "__main__":
+    b = BlooClient()
     if not os.path.exists("bloostamp"):
         print "A bloostamp does not exist in this directory, generating one..."
         with open("bloostamp", 'w') as f:
@@ -155,14 +154,14 @@ if __name__ == "__main__":
             key = hashlib.sha1(uuid.uuid4().hex).hexdigest()
             f.write(addr + ":" + key + ":1")
             print "Generated bloostamp! Your BlooCoin address is", addr
-            BlooClient().register(addr, key)
+            b.register(addr, key)
     with open("bloostamp", "r+") as f:   # Register old accounts properly. - Remove on next update.
         data = f.read().split(":")
         f.seek(0)
         if len(data) == 2:
             addr = data[0]
             key = data[1]
-            BlooClient().register(addr, key)
+            b.register(addr, key)
             print "Your account has been registered with the new system."
             f.write(addr + ":" + key + ":1")
-    BlooClient().main()
+    b.main()
