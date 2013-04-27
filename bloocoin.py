@@ -10,7 +10,7 @@ class BlooClient:
         self.ip = "bloocoin.zapto.org"
         self.port = 3122
         self.type = "client"
-        self.ver = "1.06"
+        self.ver = "1.05"
         self.cmds = {
             "transactions":self.transactions,
             "addr":self.addr,
@@ -31,6 +31,7 @@ class BlooClient:
             except:
                 continue
         return
+
     def transactions(self):
         s = socket.socket()
         s.settimeout(3)
@@ -45,7 +46,7 @@ class BlooClient:
         while True:
             data = s.recv(1024)
             if data:
-                print data+"\n"
+                print data
             else:
                 break
         return
