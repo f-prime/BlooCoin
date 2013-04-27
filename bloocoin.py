@@ -150,16 +150,9 @@ if __name__ == "__main__":
     if not os.path.exists("bloostamp"):
         print "A bloostamp does not exist in this directory, generating one..."
         with open("bloostamp", 'w') as f:
-            addr = ""
-            for x in xrange(100):
-                addr = addr + random.choice("abcdefghijklmnopqrstuvwxzyABCDEFGHIJKLMNOPQRSTUVWZYZ1234567890")
-            for x in xrange(50):
-                addr = hashlib.sha1(addr).hexdigest()
-            key = ""
-            for x in xrange(5000):
-                key = key + random.choice("abcdefghijklmnopqrstuvwxzyABCDEFGHIJKLMNOPQRSTUVWZYZ1234567890")
-            for x in xrange(1000):
-                key = hashlib.sha1(key).hexdigest()
+            import uuid
+            addr = hashlib.sha1(uuid.uuid4().hex).hexdigest()
+            key = hashlib.sha1(uuid.uuid4().hex).hexdigest()
             f.write(addr + ":" + key + ":1")
             print "Generated bloostamp! Your BlooCoin address is", addr
             BlooClient().register(addr, key)
