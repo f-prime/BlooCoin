@@ -25,6 +25,9 @@ class BlooClient(object):
         while True:
             cmd = raw_input("$ ")
             self.cmd = cmd
+            if cmd.split()[0] == "exit":
+                # Hardcoded command, just cuz.
+                break
             try:
                 self.cmds[cmd.split()[0]]()
                 print ""
@@ -123,10 +126,12 @@ class BlooClient(object):
 
     def help(self):
         print "\n".join([
-            "addr\t- Show your BlooCoin address.",
-            "coins\t- Shows the ammount of BlooCoins in your account.",
-            "send <amt> <to>\t - Sends <amt> coins from your account to <to>.",
-            "transactions\t - Lists transactions you've made.",
+            "",
+            "- addr", "\tShow your BlooCoin address.",
+            "- coins", "\tShows the ammount of BlooCoins in your account.",
+            "- send <amt> <to>", "\tSends <amt> coins from your account to <to>.",
+            "- transactions", "\tLists transactions you've made.",
+            "- exit", "\tQuit the BlooCoin client.",
             "",
             "To generate a new address, remove your 'bloostamp' file."
         ])
