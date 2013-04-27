@@ -137,7 +137,7 @@ class BlooServer:
     def transactions(self, cmd, obj):
         try:
             addr = str(cmd['addr'])
-            pwd = str(cmd['pwd'])
+            pwd = str(cmd['pwd']).replace("\n", '')
         except KeyError:
             obj.send("An error occured")
             obj.close()
