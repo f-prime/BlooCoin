@@ -11,8 +11,8 @@ def transactions(obj, data):
         return
     if mongo.db.addresses.find_one({"addr":addr, "pwd":pwd}):
         for x in mongo.db.transactions.find({"to":addr}):
-            obj.send(json.dumps({"from":x['from'], "to":addr}))
+            obj.send(json.dumps({"from":x['from'], "to":addr})+"\n")
         for x in mongo.db.transactions.find({"from":addr}):
-            obj.send(json.dumps({"from":addr, "to":x['to']}))
+            obj.send(json.dumps({"from":addr, "to":x['to']})+"\n")
         obj.close()
         return
